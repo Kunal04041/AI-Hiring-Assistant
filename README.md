@@ -1,9 +1,9 @@
-# AI-Hiring-Assistant
+# 1. AI-Hiring-Assistant
 An AI-powered hiring assistant chatbot built using Streamlit and Google Gemini's generative AI model. This app simulates an interactive technical interview by collecting candidate information, generating tailored technical questions based on the candidate’s tech stack, and anonymizing sensitive data to protect privacy.
 
 ---
 
-## Project Overview
+## 2.Project Overview
 
 TalentScout guides job candidates through a conversational interview workflow:
 
@@ -15,7 +15,7 @@ TalentScout guides job candidates through a conversational interview workflow:
 
 ---
 
-## Features
+## 3.Features
 
 - AI-generated, personalized technical questions.
 - Streamlit-powered chat UI for easy interaction.
@@ -25,7 +25,7 @@ TalentScout guides job candidates through a conversational interview workflow:
 
 ---
 
-##  Requirements
+##  4.Requirements
 
 - Python 3.7+
 - Streamlit
@@ -34,8 +34,8 @@ TalentScout guides job candidates through a conversational interview workflow:
 All dependencies are listed in `requirements.txt`.
 
 
-## **Setup Instructions**
-1. **Download** the `app.py` file and `requirements.txt` file to a folder on your local machine.
+## 5.**Setup Instructions**
+1. Download the `app.py` file and `requirements.txt` file to a folder on your local machine.
 
 2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
  
