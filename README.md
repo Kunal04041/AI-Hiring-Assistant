@@ -39,9 +39,27 @@ All dependencies are listed in `requirements.txt`.
 
 2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
  
-3.(Optional but Recommended) Create a Virtual Environment
+
 
    Run this command in your terminal or command prompt to create a new virtual environment:
    ```python
    python -m venv myenv
+   ```
+3. Install Dependencies
+
+Install all required Python packages by running:
+```python
+pip install -r requirements.txt
 ```
+
+4. Navigate to the App Directory
+
+Use the `cd` command to go to the folder where `app.py` is located. For example:
+```python
+cd /path/to/your/project/folder
+```
+5.Start the app by running:
+```python
+streamlit run app.py
+```
+After launching, Streamlit will provide a local URL, open this link in your web browser to interact with the bot.
