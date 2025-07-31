@@ -1,9 +1,9 @@
-# 1. AI-Hiring-Assistant
+# AI-Hiring-Assistant
 An AI-powered hiring assistant chatbot built using Streamlit and Google Gemini's generative AI model. This app simulates an interactive technical interview by collecting candidate information, generating tailored technical questions based on the candidate’s tech stack, and anonymizing sensitive data to protect privacy.
 
 ---
 
-## 2.Project Overview
+## 1.Project Overview
 
 TalentScout guides job candidates through a conversational interview workflow:
 
@@ -15,7 +15,7 @@ TalentScout guides job candidates through a conversational interview workflow:
 
 ---
 
-## 3.Features
+## 2.Features
 
 - AI-generated, personalized technical questions.
 - Streamlit-powered chat UI for easy interaction.
@@ -25,7 +25,7 @@ TalentScout guides job candidates through a conversational interview workflow:
 
 ---
 
-##  4.Requirements
+##  3.Requirements
 
 - Python 3.7+
 - Streamlit
@@ -34,10 +34,10 @@ TalentScout guides job candidates through a conversational interview workflow:
 All dependencies are listed in `requirements.txt`.
 
 
-## 5.**Setup Instructions**
-1. Download the `app.py` file and `requirements.txt` file to a folder on your local machine.
+## 4.**Setup Instructions**
+4.1. Download the `app.py` file and `requirements.txt` file to a folder on your local machine.
 
-2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
+4.2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
  
 
 
@@ -45,20 +45,20 @@ All dependencies are listed in `requirements.txt`.
    ```python
    python -m venv myenv
    ```
-3. Install Dependencies
+4.3. Install Dependencies
 
 Install all required Python packages by running:
 ```python
 pip install -r requirements.txt
 ```
 
-4. Navigate to the App Directory
+4.4. Navigate to the App Directory
 
 Use the `cd` command to go to the folder where `app.py` is located. For example:
 ```python
 cd /path/to/your/project/folder
 ```
-5.Start the app by running:
+4.5.Start the app by running:
 ```python
 streamlit run app.py
 ```
