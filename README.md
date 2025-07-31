@@ -38,5 +38,10 @@ All dependencies are listed in `requirements.txt`.
 1. **Download** the `app.py` file and `requirements.txt` file to a folder on your local machine.
 
 2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
-   python -m venv venv
+ 
+3.**(Optional but Recommended) Create a Virtual Environment**
 
+   Run this command in your terminal or command prompt to create a new virtual environment:
+   ```python
+   python -m venv myenv
+```
