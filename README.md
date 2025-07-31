@@ -34,7 +34,7 @@ TalentScout guides job candidates through a conversational interview workflow:
 All dependencies are listed in `requirements.txt`.
 
 
-## Setup Instructions
+## **Setup Instructions**
 1. **Download** the `app.py` file and `requirements.txt` file to a folder on your local machine.
 
 2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
