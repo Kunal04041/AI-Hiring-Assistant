@@ -37,7 +37,7 @@ All dependencies are listed in `requirements.txt`.
 ## 4.**Setup Instructions**
 4.1. Download the `app.py` file and `requirements.txt` file to a folder on your local machine.
 
-4.2. (Optional but recommended) **Create a virtual environment** to keep dependencies isolated:
+4.2. **Create a virtual environment** to keep dependencies isolated:
  
 
 
