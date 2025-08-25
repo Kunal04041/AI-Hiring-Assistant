@@ -105,6 +105,6 @@ Example prompt: " You are an experienced technical interviewer. For each of the 
 I have created a complete video walkthrough explaining the project, covering:  
 - Code structure  
 - Step-by-step working of each component  
-- Live demo of image extraction & classification  
 
-Click on the link to access video: https://www.loom.com/share/46ffa046fdee4d6ab218e106969b5c24
+
+Click on the link to access video: https://www.loom.com/share/0ebdd93036d04b8c8f04668b2224e51e?sid=137ebc6b-f181-4fa9-bab9-dd24f6a59717
