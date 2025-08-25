@@ -101,3 +101,10 @@ Example prompt: " You are an experienced technical interviewer. For each of the 
   
 - Solution: Leveraged Streamlit’s st.session_state to track progress and conversation context. This allowed the assistant to recover gracefully from partial inputs or interruptions, delivering a seamless, chat-like flow.
 
+7. Video Walkthrough  
+I have created a complete video walkthrough explaining the project, covering:  
+- Code structure  
+- Step-by-step working of each component  
+- Live demo of image extraction & classification  
+
+Click on the link to access video: https://www.loom.com/share/46ffa046fdee4d6ab218e106969b5c24
