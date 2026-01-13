@@ -64,7 +64,7 @@ pip install -r requirements.txt
 
 ### 4. Configuration
 
-Create a .env file in the root directory (or parent directory as per your setup) and add your OpenRouter API key:
+Create a .env file in the root directory (or parent directory as per your setup) and add your OpenRouter API key. You can generate a key at [openrouter.ai](https://openrouter.ai/keys).
 
 ```env
 OPENROUTER_API_KEY=your_api_key_here
@@ -82,7 +82,7 @@ streamlit run app.py
 
 ## Model Details
 
-- Primary Model: Meta Llama 3.3 70B Instruct (via OpenRouter)
+- Primary Model: GPT OSS 120B (via OpenRouter)
 - Fallback Logic: The system is designed to exhaustive the model list before presenting a graceful downtime message.
 - Context Management: The interviewer maintains a recent history of the conversation to ensure responses remain relevant and professional.
 
@@ -91,4 +91,4 @@ streamlit run app.py
 ## Video Walkthrough
 
 Access the complete video walkthrough explaining the project logic and features here:
-https://www.loom.com/share/0ebdd93036d04b8c8f04668b2224e51e?sid=137ebc6b-f181-4fa9-bab9-dd24f6a59717  (Outdated)
+https://www.loom.com/share/0ebdd93036d04b8c8f04668b2224e51e?sid=137ebc6b-f181-4fa9-bab9-dd24f6a59717 (Outdated)
