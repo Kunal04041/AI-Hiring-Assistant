@@ -1,231 +1,126 @@
 import streamlit as st
-import google.generativeai as genai
-import os
-import re
+import time
+from src.interviewer.logic import Interviewer
+from src.ui.components import render_chat_bubble, apply_custom_css
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyASL66kKdQvKWJ1xcjH6xdmmT3h2YNakTU"
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    st.error("Google Gemini API key not found! Please set GOOGLE_API_KEY as an environment variable.")
-    st.stop()
+# Initialize modular interviewer
+if "interviewer" not in st.session_state:
+    st.session_state.interviewer = Interviewer()
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('models/gemini-2.5-flash-lite')
+st.set_page_config(page_title="TalentScout Pro", page_icon="💼", layout="centered")
+apply_custom_css()
 
-st.set_page_config(page_title="TalentScout Hiring Assistant", layout="centered")
-st.title(" TalentScout - AI Hiring Assistant")
+# --- HEADER SECTION ---
 st.markdown("""
-<small>Privacy Notice: All information you provide is used solely for this simulated hiring assistant demo.
-Your data is temporarily stored in this session only, anonymized when saved, and not shared or persisted anywhere.</small>
+    <div style="text-align: center; padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid #334155;">
+        <h1 style="margin: 0; color: #F8FAFC; font-size: 2.5rem; letter-spacing: -1px;">TalentScout <span style="color: #38BDF8;">Pro</span></h1>
+        <p style="margin: 5px 0 0 0; color: #94A3B8; font-size: 1.1rem;">AI-Powered Technical Assessment Platform</p>
+    </div>
 """, unsafe_allow_html=True)
 
-# Session state
+# --- INITIALIZATION ---
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "bot", "content": "Welcome to TalentScout Pro. I am your Hiring Assistant for today. We aim to make our screening process as smooth and professional as possible. Shall we begin with your background?"}
+    ]
 if "stage" not in st.session_state:
-    st.session_state.stage = "intro"
-if "conversation" not in st.session_state:
-    st.session_state.conversation = []
-if "candidate" not in st.session_state:
-    st.session_state.candidate = {}
+    st.session_state.stage = "collecting"
+if "candidate_data" not in st.session_state:
+    st.session_state.candidate_data = {}
 if "questions" not in st.session_state:
     st.session_state.questions = []
-if "current_q_index" not in st.session_state:
-    st.session_state.current_q_index = 0
-if "answers" not in st.session_state:
-    st.session_state.answers = {}
-if "stored_data" not in st.session_state:
-    st.session_state.stored_data = []
+if "q_idx" not in st.session_state:
+    st.session_state.q_idx = 0
 
-stages = [
-    ("full_name", "Please enter your full name."),
-    ("email", "Great! What's your email?"),
-    ("phone", "Your phone number?"),
-    ("location", "Where are you based?"),
-    ("experience", "How many years of experience do you have?"),
-    ("position", "What position(s) are you applying for?"),
-    ("tech_stack", "List your tech stack (languages, tools, DBs)."),
-]
+# --- HELPERS ---
+def add_message(role, content):
+    st.session_state.messages.append({"role": role, "content": content})
 
-def is_valid(stage, val):
-    val = val.strip()
-    if stage == "email":
-        return "@" in val and "." in val
-    if stage == "phone":
-        return any(c.isdigit() for c in val)
-    if stage == "experience":
-        return any(c.isdigit() for c in val)
-    return len(val) > 1
+# --- UI RENDERING (Chat Container) ---
+chat_container = st.container()
 
-def anonymize(candidate_dict):
-    anon = candidate_dict.copy()
-    email = anon.get("email", "")
-    if email:
-        parts = email.split("@")
-        if len(parts) == 2:
-            local, domain = parts
-            anon["email"] = (local[:2] + "***@" + domain) if len(local) > 2 else "***@" + domain
-    phone = anon.get("phone", "")
-    if phone:
-        digits = re.sub(r"\D", "", phone)
-        anon["phone"] = "***" + digits[-3:] if len(digits) > 3 else "***"
-    return anon
+# Draw existing history inside the container
+with chat_container:
+    for msg in st.session_state.messages:
+        render_chat_bubble(msg["role"].capitalize(), msg["content"])
 
-def get_tech_questions(tech_stack):
-    if not tech_stack.strip():
-        return "No tech stack provided."
-    prompt = (f"You are an experienced technical interviewer. For each of the following technologies, "
-              f"write exactly 3 intermediate-level interview questions. Each question must be a single line "
-              f"and should NOT include any explanations or answers. Only return the questions, nothing else:\n{tech_stack}")
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        return f"Couldn't generate questions. Error: {str(e)}"
-
-def bot_speak(message: str) -> str:
-    return f"🟦🤖🟦 {message}"
-
-# Stage initialization
-if st.session_state.stage == "intro" and not st.session_state.conversation:
-    st.session_state.conversation.append(
-        ("Bot", bot_speak("Hi! I'm TalentScout, your AI hiring assistant. I will ask a few questions to help us streamline the process."))
-    )
-    st.session_state.conversation.append(
-        ("Bot", bot_speak("Do you want to proceed? Type 'yes' to continue or 'no' to exit."))
-    )
-    st.session_state.stage = "consent"
-
-progress_stages = [s[0] for s in stages]
-
-def get_progress(stage, current_q_index, questions):
-    if stage in progress_stages:
-        idx = progress_stages.index(stage)
-        total = len(progress_stages) + (len(questions) if questions else 0)
-        return idx / total
-    elif stage == "tech_qna":
-        total = len(questions) if questions else 1
-        return (len(progress_stages) + current_q_index) / (len(progress_stages) + total)
-    else:
-        return 0
-
-user_input = st.chat_input("Type your response...")
+# --- INPUT HANDLING ---
+user_input = st.chat_input("Enter your response here...")
 
 if user_input:
-    user_input = user_input.strip()
-    stage = st.session_state.stage.lower()
-    st.session_state.conversation.append(("User", user_input))
-
-    if any(x in user_input.lower() for x in ["bye", "exit", "thank"]):
-        st.session_state.conversation.append(("Bot", bot_speak("Thanks! We’ll be in touch soon. 👋")))
-        st.session_state.stage = "completed"
-
-    elif stage == "intro":
-        # Should not be reached, just a fallback.
-        st.session_state.conversation.append(("Bot", bot_speak("Do you want to proceed? Type 'yes' to continue or 'no' to exit.")))
-        st.session_state.stage = "consent"
-
-    elif stage == "consent":
-        if user_input.lower() == "yes":
-            st.session_state.stage = "full_name"
-            st.session_state.conversation.append(("Bot", bot_speak("Awesome! Let's begin.")))
-            st.session_state.conversation.append(("Bot", bot_speak(stages[0][1])))
-        elif user_input.lower() == "no":
-            st.session_state.conversation.append(("Bot", bot_speak("Okay, feel free to return anytime. 👋")))
-            st.session_state.stage = "completed"
-        else:
-            st.session_state.conversation.append(("Bot", bot_speak("Please reply with 'yes' to continue or 'no' to exit.")))
-
-    elif stage in [s[0] for s in stages if s[0] != "tech_stack"]:
-        if not is_valid(stage, user_input):
-            st.session_state.conversation.append(("Bot", bot_speak(f"That doesn't look like a valid {stage.replace('_', ' ')}. Try again?")))
-        else:
-            st.session_state.candidate[stage] = user_input
-            next_index = [s[0] for s in stages].index(stage) + 1
-            st.session_state.stage = stages[next_index][0]
-            st.session_state.conversation.append(("Bot", bot_speak(stages[next_index][1])))
-
-    elif stage == "tech_stack":
-        if not is_valid(stage, user_input):
-            st.session_state.conversation.append(("Bot", bot_speak("Please provide a valid tech stack to continue.")))
-        else:
-            st.session_state.candidate[stage] = user_input
-            st.session_state.conversation.append(("Bot", bot_speak("Generating technical questions...")))
-            questions_text = get_tech_questions(user_input)
-            questions_list = [q.strip() for q in questions_text.split('\n') if q.strip()]
-            if len(questions_list) == 0:
-                st.session_state.conversation.append(("Bot", bot_speak("Couldn't parse questions from the response. Ending the session.")))
-                st.session_state.stage = "completed"
+    # 1. Immediately show user's message locally
+    add_message("user", user_input)
+    # Rerunning to update the history in the loop above
+    
+    # 2. Process logic
+    with st.spinner("Processing..."):
+        if st.session_state.stage == "collecting":
+            st.session_state.candidate_data = st.session_state.interviewer.extract_info(
+                user_input, 
+                st.session_state.candidate_data
+            )
+            status, response = st.session_state.interviewer.get_conversation_response(
+                st.session_state.messages,
+                st.session_state.candidate_data
+            )
+            
+            if status == "DONE":
+                st.session_state.stage = "preparing_tech"
+                add_message("bot", response)
+                
+                # Fetch questions
+                st.session_state.questions = st.session_state.interviewer.get_technical_questions(
+                    st.session_state.candidate_data.get("tech_stack", "")
+                )
+                if st.session_state.questions:
+                    st.session_state.stage = "interviewing"
+                    first_q = f"Excellent stack. Let's dive into some technical specifics:\n\n**{st.session_state.questions[0]}**"
+                    add_message("bot", first_q)
+                else:
+                    st.session_state.stage = "collecting" # Fallback
+                    add_message("bot", "I need a bit more detail about your tech stack to generate relevant questions. Could you elaborate on what tools you use daily?")
             else:
-                st.session_state.questions = questions_list
-                st.session_state.current_q_index = 0
-                st.session_state.answers = {}
-                st.session_state.stage = "tech_qna"
-                st.session_state.conversation.append(("Bot", bot_speak("Answer a few questions to help us understand you better.")))
-                st.session_state.conversation.append(("Bot", bot_speak(st.session_state.questions[0])))
+                add_message("bot", response)
 
-    elif stage == "tech_qna":
-        idx = st.session_state.current_q_index
-        st.session_state.answers[idx] = user_input
-        next_idx = idx + 1
-        if next_idx < len(st.session_state.questions):
-            st.session_state.current_q_index = next_idx
-            st.session_state.conversation.append(("Bot", bot_speak(st.session_state.questions[next_idx])))
-        else:
-            st.session_state.conversation.append(("Bot", bot_speak("Thank you for your responses. Our team will get in touch with you soon!")))
-            candidate_anonymized = anonymize(st.session_state.candidate)
-            stored_entry = {
-                "candidate_info": candidate_anonymized,
-                "technical_answers": st.session_state.answers.copy(),
-            }
-            st.session_state.stored_data.append(stored_entry)
-            st.session_state.stage = "completed"
+        elif st.session_state.stage == "interviewing":
+            q_idx = st.session_state.q_idx
+            st.session_state.candidate_data[f"answer_{q_idx}"] = user_input
+            
+            if q_idx < len(st.session_state.questions) - 1:
+                st.session_state.q_idx += 1
+                next_q = st.session_state.questions[st.session_state.q_idx]
+                add_message("bot", f"Understood. Moving on:\n\n**{next_q}**")
+            else:
+                st.session_state.stage = "finished"
+                add_message("bot", "Perfect. I have all the data required for this stage. Our recruiting team will review your profile and reach out within 48 hours. Thank you for your time!")
 
-    elif stage == "completed":
-        st.session_state.conversation.append(("Bot", bot_speak("The session is already complete.")))
+    st.rerun()
 
-# Progress bar shows above chat
-progress = get_progress(
-    st.session_state.stage,
-    st.session_state.current_q_index if "current_q_index" in st.session_state else 0,
-    st.session_state.questions if "questions" in st.session_state else []
-)
-st.progress(progress)
-
-# Render styled chat bubbles
-for role, msg in st.session_state.conversation:
-    if role == "User":
-        st.markdown(
-            f"""
-            <div style="
-                background-color:#2779a7;
-                color:#fff;
-                padding:8px 12px;
-                border-radius:10px;
-                margin:5px 0;
-                max-width:70%;
-                float:right;
-                clear:both;
-                word-wrap: break-word;">
-                {msg}
-            </div>""",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            f"""
-            <div style="
-                background-color:#384259;
-                color:#fff;
-                padding:8px 12px;
-                border-radius:10px;
-                margin:5px 0;
-                max-width:70%;
-                float:left;
-                clear:both;
-                word-wrap: break-word;">
-                {msg}
-            </div>""",
-            unsafe_allow_html=True,
-        )
-
-with st.expander("View anonymized collected data (for demo only)"):
-    st.json(st.session_state.stored_data)
+# --- SIDEBAR (Premium Visuals) ---
+with st.sidebar:
+    st.image("https://img.icons8.com/fluency/96/business-group.png", width=60)
+    st.markdown("### Hiring Assessment")
+    
+    # Progress Calculation
+    total_steps = len(st.session_state.interviewer.required_info)
+    captured = len([v for v in st.session_state.candidate_data.values() if v and not isinstance(v, dict)])
+    progress = min(captured / total_steps, 1.0)
+    
+    st.write("Overall Progress")
+    st.progress(progress)
+    
+    st.divider()
+    
+    if st.session_state.candidate_data:
+        st.markdown("#### Captured Profile")
+        for k in st.session_state.interviewer.required_info:
+            val = st.session_state.candidate_data.get(k)
+            if val:
+                st.markdown(f"**{k.replace('_',' ').title()}**")
+                st.markdown(f"<span style='color: #38BDF8;'>{val}</span>", unsafe_allow_html=True)
+                st.write("")
+    
+    st.divider()
+    if st.button("Reset Session", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()

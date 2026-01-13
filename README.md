@@ -1,110 +1,94 @@
-# AI-Hiring-Assistant
-An AI-powered hiring assistant chatbot built using Streamlit and Google Gemini's generative AI model. This app simulates an interactive technical interview by collecting candidate information, generating tailored technical questions based on the candidate’s tech stack, and anonymizing sensitive data to protect privacy.
+# TalentScout Pro: AI Hiring Assistant
+
+TalentScout Pro is a professional, modular technical screening platform built with Streamlit and powered by OpenRouter. It uses advanced Large Language Models to conduct natural, conversational interviews, extract candidate information dynamically, and generate tailored technical assessments.
 
 ---
 
-## 1.Project Overview
+## Project Overview
 
-TalentScout guides job candidates through a conversational interview workflow:
+TalentScout Pro transforms the traditional recruitment process into an interactive experience:
 
-- Collects personal and professional details step-by-step.
-- Dynamically generates **technical interview questions** using Google Gemini based on the candidate’s specified technologies.
-- Records candidate answers to technical questions.
-- Anonymizes sensitive data (email and phone) before temporarily storing it for demo purposes.
-- Provides a friendly, chat-based experience to streamline hiring or screening processes.
-
----
-
-## 2.Features
-
-- AI-generated, personalized technical questions.
-- Streamlit-powered chat UI for easy interaction.
-- Privacy-first approach: data anonymization and temporary session storage.
-- Clear, modular code organized for readability and maintainability.
-- Ready to run locally or deploy on cloud platforms like AWS.
+- Dynamic Information Gathering: Instead of a rigid form, the AI agent engages in a natural conversation to collect personal and professional details.
+- Intelligent Data Extraction: Uses LLMs to parse user intent and automatically populate candidate profiles.
+- Custom Technical Screening: Generates high-quality technical questions based on the candidate's specific tech stack.
+- Premium UI/UX: Features a calibrated dark-mode interface with professional conversation bubbles and real-time progress tracking.
+- Robust Architecture: Built with a modular structure and a resilient backend that handles model fallbacks and rate limiting gracefully.
 
 ---
 
-## 3.**Setup Instructions**
-3.1 Download the `app.py` file and `requirements.txt` file to a folder on your local machine.
+## Technical Architecture
 
-3.2 **Create a virtual environment** to keep dependencies isolated:
- 
+The project is organized into a modular structure to ensure maintainability and scalability:
 
+- src/utils/llm_manager.py: Manages all LLM communications via OpenRouter, including a resilient fallback system to handle API rate limits.
+- src/interviewer/logic.py: Contains the core recruitment intelligence, including conversation state management and data extraction logic.
+- src/ui/components.py: Defines the visual design system, including professional chat bubble components and custom CSS overrides.
+- app.py: The main entry point that coordinates the UI and the recruitment logic.
 
-   Run this command in your terminal or command prompt to create a new virtual environment:
-   ```python
-   python -m venv myenv
-   ```
-3.3 Install Dependencies
+---
 
-Install all required Python packages by running:
-```python
+## Features
+
+- Conversational Intelligence: The assistant responds to user context and asks for missing information selectively.
+- Profile Snapshot: A real-time sidebar view that shows the information captured by the AI during the conversation.
+- Progress Tracking: Visual progress bars indicate the completion status of the screening process.
+- Model Resilience: Automatically suppresses technical API errors and provides user-friendly fallback messages during service interruptions.
+- Privacy Focused: Data is handled within the session and can be reset at any time by the user.
+
+---
+
+## Setup Instructions
+
+### 1. Project Initialization
+
+Navigate to the project directory and create a virtual environment:
+
+```powershell
+python -m venv venv
+```
+
+### 2. Activate the Environment
+
+On Windows:
+```powershell
+.\venv\Scripts\activate
+```
+
+### 3. Install Dependencies
+
+Install the required packages using pip:
+
+```powershell
 pip install -r requirements.txt
 ```
 
-3.4 Navigate to the App Directory
+### 4. Configuration
 
-Use the `cd` command to go to the folder where `app.py` is located. For example:
-```python
-cd /path/to/your/project/folder
+Create a .env file in the root directory (or parent directory as per your setup) and add your OpenRouter API key:
+
+```env
+OPENROUTER_API_KEY=your_api_key_here
 ```
-3.5 Start the app by running:
-```python
+
+### 5. Launch the Application
+
+Start the Streamlit server:
+
+```powershell
 streamlit run app.py
 ```
-After launching, Streamlit will provide a local URL, open this link in your web browser to interact with the bot.
 
+---
 
-## 4.Technical Details
-4.1. Libraries Used:
+## Model Details
 
-- streamlit: For building the interactive web interface.
-- google.generativeai: To access Google Gemini for content generation.
-- os: For environment variable access (API keys).
-- re: For basic validation and anonymization (regular expressions).
+- Primary Model: Meta Llama 3.3 70B Instruct (via OpenRouter)
+- Fallback Logic: The system is designed to exhaustive the model list before presenting a graceful downtime message.
+- Context Management: The interviewer maintains a recent history of the conversation to ensure responses remain relevant and professional.
 
-4.2 Model Details:
-- Model Used: Google Gemini 2.5 Flash Lite (models/gemini-2.5-flash-lite)
-- The model is accessed via the official google.generativeai Python package, configured at session start.
-- Gemini is used both for generating technical interview questions tailored to the candidate's tech stack.
+---
 
-4.3 Architectural Decisions
+## Video Walkthrough
 
-- Chose a session-based flow using Streamlit’s st.session_state for tracking progress, storing candidate data, and managing chat history.
-- An interactive conversational assistant mimics a chat, collecting information in stages and managing dynamic context.
-- Privacy measures: Collected candidate data is anonymized (email and phone masked) and viewable only within the current demo session.
-- All model prompts and inference are abstracted into helper functions (notably get_tech_questions), keeping logic modular and testable.
-
-## 5.Propmpt Design:
-- Information Gathering: The assistant walks users through a series of structured prompts (full name, contact, location, experience, tech stack). Prompts use plain language and offer clear guidance to maximize form completion quality.
-- Technical Question Generation: Prompts sent to Gemini explicitly instruct it to return three intermediate-level technical questions per input technology, stressing that output must be only questions (no answers, no explanations), each on a single line.
-Example prompt: " You are an experienced technical interviewer. For each of the following technologies, write exactly 3 intermediate-level interview questions. Each question must be a single line and should NOT include any explanations or answers. Only return the questions, nothing else."
-
-## 6.Challenges and solution
-
-6.1 Access to Free Generative Models:
-
-- Challenge: Free-tier access to powerful generative models is limited—high-quality versions may have quotas, costs, or require approval, making unrestricted prototyping and broader deployment difficult.
-
-- Solution: Evaluated whether relying on free or limited models is sustainable for the project’s scale and intended use. For ongoing or production use, consider budgeting for paid APIs, investigating open-source alternatives, or combining multiple model sources to mitigate cost and quota constraints.
-
-6.2 Error Handling with Model API:
-
-- Challenge: Unreliable connectivity, rate limits, or unexpected responses from the external model API could degrade user experience.
-  
-- Solution: Encapsulated every API call within try/except blocks. If errors occur, users receive a friendly fallback message (e.g., “Couldn't generate questions. Error: ...") without breaking the app.
-
-6.3 Session Management & User Flow
-
-- Challenge: Users may provide incomplete, ambiguous, or unexpected responses, disrupting the conversation flow. Ensuring progression and storing state was critical to a smooth experience.
-  
-- Solution: Leveraged Streamlit’s st.session_state to track progress and conversation context. This allowed the assistant to recover gracefully from partial inputs or interruptions, delivering a seamless, chat-like flow.
-
-7. Video Walkthrough  
-I have created a complete video walkthrough explaining the project, covering:  
-- Code structure  
-- Step-by-step working of each component  
-
-
-Click on the link to access video: https://www.loom.com/share/0ebdd93036d04b8c8f04668b2224e51e?sid=137ebc6b-f181-4fa9-bab9-dd24f6a59717
+Access the complete video walkthrough explaining the project logic and features here:
+https://www.loom.com/share/0ebdd93036d04b8c8f04668b2224e51e?sid=137ebc6b-f181-4fa9-bab9-dd24f6a59717  (Outdated)
