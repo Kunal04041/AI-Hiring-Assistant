@@ -80,6 +80,40 @@ streamlit run app.py
 
 ---
 
+## Docker Setup
+
+If you prefer to run the application using Docker, follow these steps:
+
+### 1. Build the Docker Image
+```bash
+docker build -t ai-hiring-assistant .
+```
+
+### 2. Run the Container
+```bash
+docker run -p 8501:8501 ai-hiring-assistant
+```
+
+### 3. Using Docker Compose (Recommended)
+You can also use Docker Compose for a simpler setup:
+```bash
+docker-compose up --build
+```
+
+The application will be accessible at `http://localhost:8501`.
+
+> **Note:** Streamlit might show a URL like `http://0.0.0.0:8501` in the terminal. In your browser, always use [http://localhost:8501](http://localhost:8501).
+
+### 4. Stopping & Cleaning Up
+
+*   **To stop:** Press `Ctrl + C` in the terminal or run `docker-compose down`.
+*   **To reclaim disk space:** If you are done testing and want to free up space (Docker images can take up significant C: drive space), run:
+    ```powershell
+    docker system prune -a --volumes
+    ```
+
+---
+
 ## Model Details
 
 - Primary Model: GPT OSS 120B (via OpenRouter)
